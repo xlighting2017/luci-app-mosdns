@@ -22,6 +22,10 @@ get_config() {
 	config_get lazy_cache_ttl $1 lazy_cache_ttl 86400
 	config_get dump_file $1 dump_file 0
 	config_get dump_interval $1 dump_interval 3600
+	config_get prefetch $1 prefetch 0
+	config_get prefetch_before_expire $1 prefetch_before_expire 10
+	config_get prefetch_min_hits $1 prefetch_min_hits 3
+	config_get prefetch_scan_interval $1 prefetch_scan_interval 5
 	config_get enable_pipeline $1 enable_pipeline 0
 	config_get geo_auto_update $1 geo_auto_update 0
 	config_get geo_update_day_time $1 geo_update_day_time 2
@@ -29,6 +33,7 @@ get_config() {
 	config_get listen_port $1 listen_port 5335
 	config_get listen_address $1 listen_address "0.0.0.0"
 	config_get log_file $1 log_file "/var/log/mosdns.log"
+	config_get log_size $1 log_size "1"
 	config_get log_level $1 log_level "info"
 	config_get minimal_ttl $1 minimal_ttl 0
 	config_get maximum_ttl $1 maximum_ttl 0
@@ -63,6 +68,7 @@ generate_config() {
 	json_add_object 'log'
 	json_add_string "level" "$log_level"
 	json_add_string "file" "$log_file"
+	json_add_string "size" "$log_size"
 	json_close_object
 	# api
 	json_add_object 'api'
@@ -231,6 +237,12 @@ generate_config() {
 		[ "$dump_file" -eq 1 ] && {
 			json_add_string "dump_file" "/etc/mosdns/cache.dump"
 			json_add_int "dump_interval" "$dump_interval"
+		}
+		[ "$prefetch" -eq 1 ] && {
+			json_add_boolean "prefetch" 1
+			json_add_int "prefetch_before_expire" "$prefetch_before_expire"
+			json_add_int "prefetch_min_hits" "$prefetch_min_hits"
+			json_add_int "prefetch_scan_interval" "$prefetch_scan_interval"
 		}
 		json_close_object
 		json_close_object

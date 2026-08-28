@@ -172,6 +172,11 @@ return view.extend({
 		o.depends('configfile', '/var/etc/mosdns.json');
 		o.rmempty = false;
 
+		o = s.taboption('basic', form.Value, 'log_size', _('Log File Size'), _('Set the maximum size of the log file (in MB).'));
+		o.datatype = 'uinteger';
+		o.default = '1';
+		o.depends('configfile', '/var/etc/mosdns.json');
+
 		o = s.taboption('basic', form.Flag, 'redirect', _('DNS Forward'), _('Forward Dnsmasq Domain Name resolution requests to MosDNS'));
 		o.default = false;
 
@@ -319,6 +324,30 @@ return view.extend({
 		o.datatype = 'and(uinteger,min(0))';
 		o.default = 86400;
 		o.depends('cache', '1');
+
+		o = s.taboption('advanced', form.Flag, 'prefetch', _('Cache Prefetching'),
+			_('Proactively refresh hot cache entries in the background before they expire.'));
+		o.rmempty = false;
+		o.default = false;
+		o.depends('cache', '1');
+
+		o = s.taboption('advanced', form.Value, 'prefetch_before_expire', _('Prefetch Before Expire'),
+			_('Prefetch when the remaining TTL is less than this value (in seconds).'));
+		o.datatype = 'and(uinteger,min(1))';
+		o.default = 10;
+		o.depends('prefetch', '1');
+
+		o = s.taboption('advanced', form.Value, 'prefetch_min_hits', _('Prefetch Min Hits'),
+			_('Minimum cache hits required since the last refresh to trigger a prefetch.'));
+		o.datatype = 'and(uinteger,min(1))';
+		o.default = 3;
+		o.depends('prefetch', '1');
+
+		o = s.taboption('advanced', form.Value, 'prefetch_scan_interval', _('Prefetch Scan Interval'),
+			_('Interval for the background thread to scan the cache for prefetching (in seconds).'));
+		o.datatype = 'and(uinteger,min(1))';
+		o.default = 5;
+		o.depends('prefetch', '1');
 
 		o = s.taboption('advanced', form.Flag, 'dump_file', _('Cache Dump'),
 			_('Save the cache locally and reload the cache dump on the next startup'));
